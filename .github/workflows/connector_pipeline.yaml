@@ -53,13 +53,13 @@ jobs:
     - name: Update JSON file if there are changes
       if: env.CHANGED == 'true'
       run: |
-        cp downloaded.json CFN_Template\wiz-aws-standard-org.json
+        cp downloaded.json wiz-aws-standard-org.json
         rm -rf downloaded.json
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b update-json
         git add .
-        git commit -m "Update JSON file-$(date +'%Y%m%d%H%M%S')"
+        git commit -m "Update JSON file"
         git push origin HEAD
 
     - name: Create a Pull Request
@@ -67,6 +67,6 @@ jobs:
       uses: peter-evans/create-pull-request@v5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        branch: update-json-$(date +'%Y%m%d%H%M%S')
+        branch: update-json
         title: 'Update JSON file'
         body: 'This PR updates the JSON file with the latest version.'
