@@ -83,7 +83,6 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ env.BRANCH_NAME }}
-        base: main
         title: 'Update JSON file'
         body: 'This PR updates the JSON file with the latest version.'  
         reviewers: cyberviking949 # Add required reviewers here
