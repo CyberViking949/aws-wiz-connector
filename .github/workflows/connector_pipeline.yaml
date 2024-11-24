@@ -54,17 +54,19 @@ jobs:
       if: env.CHANGED == 'true'
       run: |
         cp downloaded.json wiz-aws-standard-org.json
-        rm -rf downloaded.json
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+        git fetch origin main # Replace 'main' with your base branch if different
+        git checkout main
+
         branch_name="update-json-$(date +'%Y%m%d%H%M%S')"
         echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
+
         git checkout -b $branch_name
-        git add .
+        git add CFN_Template/wiz-aws-standard-org.json
         git commit -m "Update JSON file"
         git push origin $branch_name
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   
     - name: Create a Pull Request
       if: env.CHANGED == 'true'
@@ -74,7 +76,6 @@ jobs:
         branch: ${{ env.BRANCH_NAME }}
         base: main
         title: 'Update JSON file'
-        body: 'This PR updates the JSON file with the latest version.'
-        draft: false # Ensure the PR is created in normal (non-draft) mode
+        body: 'This PR updates the JSON file with the latest version.'  
         reviewers: cyberviking949 # Add required reviewers here
         #team-reviewers: [] # Add required team reviewers here
