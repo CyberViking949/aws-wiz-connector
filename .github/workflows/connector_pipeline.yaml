@@ -60,7 +60,6 @@ jobs:
         git checkout -b update-json
         git add .
         git commit -m "Update JSON file"
-        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
         git push origin HEAD
 
     - name: Create a Pull Request
