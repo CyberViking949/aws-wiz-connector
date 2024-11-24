@@ -42,7 +42,7 @@ jobs:
       id: compare
       run: |
         echo "Checking if the JSON files are different using diff..."
-        if diff downloaded.json CFN_Template/wiz-aws-standard-org.json > /dev/null; then
+        if diff downloaded.json wiz-aws-standard-org.json > /dev/null; then
           echo "Files are the same."
           echo "CHANGED=false" >> $GITHUB_ENV
         else
@@ -53,11 +53,12 @@ jobs:
     - name: Update JSON file if there are changes
       if: env.CHANGED == 'true'
       run: |
-        cp downloaded.json path/to/your/existing.json
+        cp downloaded.json CFN_Template\wiz-aws-standard-org.json
+        rm -rf downloaded.json
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout -b update-json-$(date +'%Y%m%d%H%M%S')
-        git add CFN_Template\wiz-aws-standard-org.json
+        git add .
         git commit -m "Update JSON file"
         git push origin HEAD
 
