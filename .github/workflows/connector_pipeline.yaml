@@ -38,13 +38,6 @@ jobs:
     - name: Download the latest JSON file
       run: curl -o downloaded.json https://wizio-public.s3.amazonaws.com/deployment-v2/aws/wiz-aws-standard-org.json
 
-    - name: Debug JSON files
-      run: |
-        echo "Downloaded JSON file content:"
-        cat downloaded.json
-        echo "Existing JSON file content:"
-        cat wiz-aws-standard-org.json
-
     - name: Compare JSON files
       id: compare
       run: |
