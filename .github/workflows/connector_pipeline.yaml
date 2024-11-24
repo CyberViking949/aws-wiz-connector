@@ -78,4 +78,3 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         title: 'Update JSON file'
         body: 'This PR updates the JSON file with the latest version.'
-        delete-branch: false           # Do not delete the branch after creating the P
