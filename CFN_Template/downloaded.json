@@ -1,0 +1,1357 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Conditions": {
+    "DataScanningEnabled": {
+      "Fn::Equals": [
+        {
+          "Ref": "DataScanning"
+        },
+        "Enabled"
+      ]
+    },
+    "EKSScanningEnabled": {
+      "Fn::Equals": [
+        {
+          "Ref": "EKSScanning"
+        },
+        "Enabled"
+      ]
+    },
+    "LightsailScanningEnabled": {
+      "Fn::Equals": [
+        {
+          "Ref": "LightsailScanning"
+        },
+        "Enabled"
+      ]
+    },
+    "RDSLogsScanning": {
+      "Fn::Equals": [
+        {
+          "Ref": "RDSLogsScanning"
+        },
+        "Enabled"
+      ]
+    },
+    "S3AWSLogsScanning": {
+      "Fn::Equals": [
+        {
+          "Ref": "S3AWSLogsScanning"
+        },
+        "Enabled"
+      ]
+    },
+    "S3KMSDecrypt": {
+      "Fn::Equals": [
+        {
+          "Ref": "S3KMSDecrypt"
+        },
+        "Enabled"
+      ]
+    },
+    "orgEnabled": {
+      "Fn::Equals": [
+        {
+          "Ref": "isOrg"
+        },
+        "Enabled"
+      ]
+    }
+  },
+  "Description": "Wiz AWS standard org deployment",
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": {
+            "default": "Wiz Access Role"
+          },
+          "Parameters": [
+            "WizRoleName",
+            "ExternalId",
+            "RoleARN",
+            "LightsailScanning",
+            "DataScanning",
+            "EKSScanning",
+            "WizPolicyNameSuffix"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Wiz Org Deployment"
+          },
+          "Parameters": [
+            "orgId",
+            "isOrg"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Wiz Defend"
+          },
+          "Parameters": [
+            "S3AWSLogsScanning",
+            "RDSLogsScanning",
+            "S3KMSDecrypt"
+          ]
+        }
+      ],
+      "ParameterLabels": {
+        "DataScanning": {
+          "default": "Enable Data Scanning"
+        },
+        "EKSScanning": {
+          "default": "Enable EKS Scanning"
+        },
+        "ExternalId": {
+          "default": "Connector External ID"
+        },
+        "LightsailScanning": {
+          "default": "Enable Lightsail Scanning"
+        },
+        "RDSLogsScanning": {
+          "default": "Enable RDS Logs Scanning"
+        },
+        "RoleARN": {
+          "default": "AWS Trust Policy Role"
+        },
+        "S3AWSLogsScanning": {
+          "default": "Enable S3 AWS Logs Scanning"
+        },
+        "S3KMSDecrypt": {
+          "default": "Enable S3 KMS Decrypt"
+        },
+        "WizRoleName": {
+          "default": "Wiz Role Name"
+        },
+        "isOrg": {
+          "default": "Enable Wiz Org Deployment"
+        },
+        "orgId": {
+          "default": "Organizational Unit Id"
+        }
+      }
+    },
+    "Tags": [
+      {
+        "wiz_version_last_updated": "2024-11-11"
+      }
+    ]
+  },
+  "Outputs": {
+    "ExternalID": {
+      "Description": "Your External ID",
+      "Value": {
+        "Ref": "ExternalId"
+      }
+    },
+    "RoleARNID": {
+      "Description": "Your Role ARN ID",
+      "Value": {
+        "Fn::GetAtt": [
+          "Role",
+          "Arn"
+        ]
+      }
+    }
+  },
+  "Parameters": {
+    "DataScanning": {
+      "AllowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "Default": "Disabled",
+      "Description": "Enable data scanning",
+      "Type": "String"
+    },
+    "EKSScanning": {
+      "AllowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "Default": "Disabled",
+      "Description": "Allow the Wiz access role to automatically connect to EKS clusters that have public API endpoints",
+      "Type": "String"
+    },
+    "ExternalId": {
+      "AllowedPattern": "\\S{8}-\\S{4}-\\S{4}-\\S{4}-\\S{12}",
+      "Description": "Enter the External ID of the Wiz connector. This is a nonce that will be used by our service to assume the role in your account.",
+      "Type": "String"
+    },
+    "LightsailScanning": {
+      "AllowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "Default": "Disabled",
+      "Description": "Enable lightsail scanning",
+      "Type": "String"
+    },
+    "RDSLogsScanning": {
+      "AllowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "Default": "Enabled",
+      "Description": "Enable RDS logs scanning",
+      "Type": "String"
+    },
+    "RoleARN": {
+      "AllowedPattern": "arn:aws(-us-gov|-cn)?:iam::[0-9]+:role/.*",
+      "Description": "Enter the AWS Trust Policy Role ARN for your Wiz data center. You can retrieve it under User Settings, Tenant in the Wiz portal.",
+      "Type": "String"
+    },
+    "S3AWSLogsScanning": {
+      "AllowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "Default": "Enabled",
+      "Description": "Enable retrieval of AWSLogs/* objects from S3 buckets",
+      "Type": "String"
+    },
+    "S3KMSDecrypt": {
+      "AllowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "Default": "Enabled",
+      "Description": "Enable S3 KMS decrypt",
+      "Type": "String"
+    },
+    "WizPolicyNameSuffix": {
+      "Default": "",
+      "Description": "(Optional) Add a suffix to every IAM policy name. This is helpful in the event you are deploying multiple instances of the same stack",
+      "Type": "String"
+    },
+    "WizRoleName": {
+      "Default": "WizAccess-Role",
+      "Description": "Enter the IAM role name that will be created in your AWS account, the default is WizAccess-Role",
+      "Type": "String"
+    },
+    "isOrg": {
+      "AllowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "Default": "Disabled",
+      "Description": "Enable org deploy",
+      "Type": "String"
+    },
+    "orgId": {
+      "Default": "",
+      "Description": "The OU ID of the AWS Organization where we should deploy, preferably the root OU. This value is mandatory when isOrg is Enabled. You can submit one value, or a space separated list of multiple OUs",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Role": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "StringEquals": {
+                  "sts:ExternalId": {
+                    "Ref": "ExternalId"
+                  }
+                }
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Ref": "RoleARN"
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/job-function/ViewOnlyAccess"
+          },
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/SecurityAudit"
+          }
+        ],
+        "RoleName": {
+          "Ref": "WizRoleName"
+        },
+        "Tags": [
+          {
+            "Key": "wiz_version_last_updated",
+            "Value": "2024-11-11"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "WizAccessRoleStackSet": {
+      "Condition": "orgEnabled",
+      "Properties": {
+        "AutoDeployment": {
+          "Enabled": true,
+          "RetainStacksOnAccountRemoval": false
+        },
+        "Capabilities": [
+          "CAPABILITY_IAM",
+          "CAPABILITY_NAMED_IAM"
+        ],
+        "Description": "Wiz AWS standard org deployment",
+        "ManagedExecution": {
+          "Active": true
+        },
+        "OperationPreferences": {
+          "FailureTolerancePercentage": 50,
+          "MaxConcurrentPercentage": 50,
+          "RegionConcurrencyType": "PARALLEL"
+        },
+        "Parameters": [
+          {
+            "ParameterKey": "ExternalId",
+            "ParameterValue": {
+              "Ref": "ExternalId"
+            }
+          },
+          {
+            "ParameterKey": "RoleARN",
+            "ParameterValue": {
+              "Ref": "RoleARN"
+            }
+          },
+          {
+            "ParameterKey": "WizRoleName",
+            "ParameterValue": {
+              "Ref": "WizRoleName"
+            }
+          },
+          {
+            "ParameterKey": "DataScanning",
+            "ParameterValue": {
+              "Ref": "DataScanning"
+            }
+          },
+          {
+            "ParameterKey": "EKSScanning",
+            "ParameterValue": {
+              "Ref": "EKSScanning"
+            }
+          },
+          {
+            "ParameterKey": "LightsailScanning",
+            "ParameterValue": {
+              "Ref": "LightsailScanning"
+            }
+          },
+          {
+            "ParameterKey": "S3AWSLogsScanning",
+            "ParameterValue": {
+              "Ref": "S3AWSLogsScanning"
+            }
+          },
+          {
+            "ParameterKey": "RDSLogsScanning",
+            "ParameterValue": {
+              "Ref": "RDSLogsScanning"
+            }
+          },
+          {
+            "ParameterKey": "S3KMSDecrypt",
+            "ParameterValue": {
+              "Ref": "S3KMSDecrypt"
+            }
+          },
+          {
+            "ParameterKey": "WizPolicyNameSuffix",
+            "ParameterValue": {
+              "Ref": "WizPolicyNameSuffix"
+            }
+          }
+        ],
+        "PermissionModel": "SERVICE_MANAGED",
+        "StackInstancesGroup": [
+          {
+            "DeploymentTargets": {
+              "OrganizationalUnitIds": {
+                "Fn::Split": [
+                  " ",
+                  {
+                    "Ref": "orgId"
+                  }
+                ]
+              }
+            },
+            "Regions": [
+              {
+                "Ref": "AWS::Region"
+              }
+            ]
+          }
+        ],
+        "StackSetName": {
+          "Ref": "AWS::StackName"
+        },
+        "TemplateURL": "https://wizio-public.s3.amazonaws.com/deployment-v2/aws/wiz-aws-standard.json"
+      },
+      "Type": "AWS::CloudFormation::StackSet"
+    },
+    "WizDataScanningPolicy": {
+      "Condition": "DataScanningEnabled",
+      "Properties": {
+        "ManagedPolicyName": {
+          "Fn::Sub": "WizDataScanningPolicy${WizPolicyNameSuffix}"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "redshift:DeleteClusterSnapshot",
+                "redshift:AuthorizeSnapshotAccess",
+                "redshift:RevokeSnapshotAccess"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:redshift:*:*:snapshot:*wiz-autogen-*"
+              }
+            },
+            {
+              "Action": [
+                "redshift:CopyClusterSnapshot"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "redshift:CreateTags"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:redshift:*:*:snapshot:*/*"
+              }
+            },
+            {
+              "Action": [
+                "redshift:DescribeClusterSnapshots",
+                "redshift:DescribeClusters"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "redshift:CreateClusterSnapshot"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "aws:RequestTag/wiz": "auto-gen-snapshot"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "rds:DescribeDBClusters",
+                "rds:DescribeDBClusterSnapshots",
+                "rds:DescribeDBInstances",
+                "rds:DescribeDBSnapshots",
+                "rds:DescribeDBSubnetGroups",
+                "rds:DescribeAccountAttributes",
+                "rds:ListTagsForResource",
+                "rds:AddTagsToResource"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "rds:DeleteDBClusterSnapshot",
+                "rds:ModifyDBClusterSnapshotAttribute"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:rds:*:*:cluster-snapshot:wiz-autogen-*"
+              }
+            },
+            {
+              "Action": [
+                "rds:CopyDBClusterSnapshot",
+                "rds:CopyDBSnapshot"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "rds:DeleteDBSnapshot",
+                "rds:ModifyDBSnapshotAttribute"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:rds:*:*:snapshot:wiz-autogen-*"
+              }
+            },
+            {
+              "Action": [
+                "rds:CreateDBClusterSnapshot",
+                "rds:CreateDBSnapshot"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "rds:req-tag/wiz": "auto-gen-snapshot"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "kms:CreateGrant",
+                "kms:ReEncrypt*"
+              ],
+              "Condition": {
+                "StringLike": {
+                  "kms:ViaService": {
+                    "Fn::Sub": "rds.*.${AWS::URLSuffix}"
+                  }
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "dynamodb:Scan",
+                "dynamodb:DescribeTable"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Roles": [
+          {
+            "Ref": "Role"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::ManagedPolicy"
+    },
+    "WizEKSScanningPolicy": {
+      "Condition": "EKSScanningEnabled",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "eks:CreateAccessEntry"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "eks:principalArn": {
+                    "Fn::Sub": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/${WizRoleName}"
+                  }
+                }
+              },
+              "Effect": "Allow",
+              "Resource": [
+                "*"
+              ],
+              "Sid": "WizCreateAccessEntry"
+            },
+            {
+              "Action": [
+                "eks:DeleteAccessEntry"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "aws:ResourceTag/CreatedBy": "Wiz"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": [
+                "*"
+              ],
+              "Sid": "WizDeleteAccessEntry"
+            },
+            {
+              "Action": [
+                "eks:TagResource"
+              ],
+              "Condition": {},
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:eks:*:*:access-entry/*/role/${AWS::AccountId}/${WizRoleName}/*"
+                }
+              ],
+              "Sid": "WizTagAccessEntry"
+            },
+            {
+              "Action": [
+                "eks:AssociateAccessPolicy"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "eks:policyArn": {
+                    "Fn::Sub": "arn:${AWS::Partition}:eks::aws:cluster-access-policy/AmazonEKSAdminViewPolicy"
+                  },
+                  "eks:principalArn": {
+                    "Fn::Sub": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/${WizRoleName}"
+                  }
+                }
+              },
+              "Effect": "Allow",
+              "Resource": [
+                "*"
+              ],
+              "Sid": "WizAssociateViewOnly"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": {
+          "Fn::Sub": "WizEKSScanningPolicy${WizPolicyNameSuffix}"
+        },
+        "Roles": [
+          {
+            "Ref": "Role"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Policy"
+    },
+    "WizFullPolicy": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "account:GetContactInformation",
+                "acm-pca:GetCertificateAuthorityCertificate",
+                "acm:GetCertificate",
+                "amplify:GetApp",
+                "amplify:GetBackendEnvironment",
+                "amplify:ListApps",
+                "amplify:ListBackendEnvironments",
+                "amplify:ListBranches",
+                "amplify:ListDomainAssociations",
+                "amplify:ListTagsForResource",
+                "amplifybackend:GetBackend",
+                "aoss:BatchGetCollection",
+                "aoss:GetAccessPolicy",
+                "aoss:GetSecurityPolicy",
+                "aoss:ListAccessPolicies",
+                "aoss:ListCollections",
+                "aoss:ListSecurityPolicies",
+                "aoss:ListTagsForResource",
+                "apigateway:GET",
+                "appconfig:GetConfigurationProfile",
+                "appconfig:ListApplications",
+                "appconfig:ListConfigurationProfiles",
+                "appconfig:ListTagsForResource",
+                "appfabric:GetAppBundle",
+                "appfabric:ListAppBundles",
+                "appfabric:ListTagsForResource",
+                "appflow:DescribeFlow",
+                "applicationinsights:ListApplications",
+                "applicationinsights:ListTagsForResource",
+                "appstream:DescribeFleets",
+                "appstream:DescribeStacks",
+                "appstream:DescribeUserStackAssociations",
+                "appstream:ListAssociatedFleets",
+                "appstream:ListTagsForResource",
+                "appsync:GetApiAssociation",
+                "aps:ListWorkspaces",
+                "auditmanager:GetAssessment",
+                "backup-gateway:GetGateway",
+                "backup-gateway:ListGateways",
+                "backup-gateway:ListTagsForResource",
+                "backup:GetBackupPlan",
+                "backup:GetBackupSelection",
+                "bedrock:GetAgent",
+                "bedrock:GetAgentActionGroup",
+                "bedrock:GetDataSource",
+                "bedrock:GetKnowledgeBase",
+                "bedrock:ListAgentActionGroups",
+                "bedrock:ListAgentKnowledgeBases",
+                "bedrock:ListAgents",
+                "bedrock:ListDataSources",
+                "bedrock:ListKnowledgeBases",
+                "chatbot:DescribeChimeWebhookConfigurations",
+                "chatbot:DescribeSlackChannelConfigurations",
+                "chime:GetAccount",
+                "cleanrooms:GetCollaboration",
+                "cleanrooms:ListCollaborations",
+                "cleanrooms:ListTagsForResource",
+                "clouddirectory:ListTagsForResource",
+                "cloudhsm:DescribeClusters",
+                "cloudsearch:DescribeAvailabilityOptions",
+                "codeconnections:ListConnections",
+                "codeconnections:ListHosts",
+                "codeconnections:ListTagsForResource",
+                "codeguru-reviewer:DescribeRepositoryAssociation",
+                "codeguru-reviewer:ListRepositoryAssociations",
+                "codepipeline:ListTagsForResource",
+                "codestar-notifications:DescribeNotificationRule",
+                "codestar-notifications:ListNotificationRules",
+                "databrew:DescribeRecipe",
+                "databrew:ListRecipes",
+                "datazone:GetDomain",
+                "datazone:ListDomains",
+                "datazone:ListTagsForResource",
+                "detective:ListOrganizationAdminAccount",
+                "detective:ListTagsForResource",
+                "dlm:GetLifecyclePolicies",
+                "dlm:GetLifecyclePolicy",
+                "docdb-elastic:GetCluster",
+                "docdb-elastic:ListTagsForResource",
+                "ds:DescribeSettings",
+                "ds:DescribeSharedDirectories",
+                "ds:DescribeTrusts",
+                "ds:ListTagsForResource",
+                "dynamodb:GetResourcePolicy",
+                "ec2:GetInstanceMetadataDefaults",
+                "ec2:GetSnapshotBlockPublicAccessState",
+                "ecr:BatchGetImage",
+                "ecr:GetAuthorizationToken",
+                "ecr:GetDownloadUrlForLayer",
+                "eks:DescribeAccessEntry",
+                "eks:ListAssociatedAccessPolicies",
+                "entityresolution:GetIdNamespace",
+                "entityresolution:GetMatchingWorkflow",
+                "entityresolution:GetSchemaMapping",
+                "entityresolution:ListIdNamespaces",
+                "entityresolution:ListMatchingWorkflows",
+                "entityresolution:ListSchemaMappings",
+                "entityresolution:ListTagsForResource",
+                "frauddetector:ListTagsForResource",
+                "gamelift:DescribeAlias",
+                "gamelift:DescribeBuild",
+                "gamelift:DescribeFleetAttributes",
+                "gamelift:DescribeGameServerGroup",
+                "gamelift:DescribeGameSessionQueues",
+                "gamelift:DescribeMatchmakingConfigurations",
+                "gamelift:DescribeMatchmakingRuleSets",
+                "gamelift:DescribeScript",
+                "geo:DescribeGeofenceCollection",
+                "geo:DescribeKey",
+                "geo:DescribeMap",
+                "geo:DescribePlaceIndex",
+                "geo:DescribeRouteCalculator",
+                "geo:DescribeTracker",
+                "geo:ListGeofenceCollections",
+                "geo:ListKeys",
+                "geo:ListPlaceIndexes",
+                "geo:ListRouteCalculators",
+                "geo:ListTagsForResource",
+                "geo:ListTrackers",
+                "glue:GetConnection",
+                "identitystore:Describe*",
+                "identitystore:List*",
+                "internetmonitor:GetMonitor",
+                "internetmonitor:ListMonitors",
+                "iotanalytics:DescribeChannel",
+                "iotanalytics:DescribeDataset",
+                "iotanalytics:DescribeDatastore",
+                "iotanalytics:DescribePipeline",
+                "iotanalytics:ListDatasets",
+                "iotanalytics:ListDatastores",
+                "iotanalytics:ListPipelines",
+                "iotanalytics:ListTagsForResource",
+                "iotfleetwise:GetCampaign",
+                "iotfleetwise:ListCampaigns",
+                "iotfleetwise:ListTagsForResource",
+                "iotsitewise:DescribeAssetModel",
+                "iotsitewise:DescribePortal",
+                "iotsitewise:ListPortals",
+                "iotsitewise:ListTagsForResource",
+                "kendra:DescribeDataSource",
+                "kinesisanalytics:DescribeApplication",
+                "kinesisvideo:GetDataEndpoint",
+                "lambda:GetFunction",
+                "lambda:GetLayerVersion",
+                "lightsail:GetRelationalDatabases",
+                "lookoutequipment:DescribeDataset",
+                "lookoutequipment:DescribeInferenceScheduler",
+                "lookoutequipment:DescribeModel",
+                "lookoutequipment:ListInferenceSchedulers",
+                "lookoutequipment:ListModels",
+                "lookoutequipment:ListTagsForResource",
+                "lookoutvision:DescribeProject",
+                "macie2:GetAutomatedDiscoveryConfiguration",
+                "macie2:GetFindings",
+                "macie2:GetMacieSession",
+                "mediaconvert:GetJobTemplate",
+                "mediaconvert:GetPreset",
+                "mediaconvert:GetQueue",
+                "mediaconvert:ListJobTemplates",
+                "mediaconvert:ListPresets",
+                "mediaconvert:ListQueues",
+                "mediaconvert:ListTagsForResource",
+                "mediastore:ListTagsForResource",
+                "medical-imaging:GetDatastore",
+                "medical-imaging:ListDatastores",
+                "medical-imaging:ListTagsForResource",
+                "memorydb:ListTags",
+                "neptune-graph:GetGraph",
+                "neptune-graph:ListGraphSnapshots",
+                "neptune-graph:ListGraphs",
+                "neptune-graph:ListTagsForResource",
+                "networkmonitor:GetMonitor",
+                "networkmonitor:ListMonitors",
+                "payment-cryptography:GetKey",
+                "payment-cryptography:ListKeys",
+                "payment-cryptography:ListTagsForResource",
+                "pcs:GetCluster",
+                "pcs:ListClusters",
+                "pcs:ListTagsForResource",
+                "pipes:DescribePipe"
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "WizFullPolicy"
+            },
+            {
+              "Action": "cassandra:Select",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:cassandra:*:*:/keyspace/system_schema/table/keyspaces"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:cassandra:*:*:/keyspace/system_schema/table/tables"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:cassandra:*:*:/keyspace/system_schema/table/columns"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:cassandra:*:*:/keyspace/system_schema_mcs/table/keyspaces"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:cassandra:*:*:/keyspace/system_schema_mcs/table/tables"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:cassandra:*:*:/keyspace/system_schema_mcs/table/columns"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:cassandra:*:*:/keyspace/system_schema_mcs/table/tags"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:cassandra:*:*:/keyspace/system_multiregion_info/table/tables"
+                }
+              ],
+              "Sid": "WizReadOnlyAccessToAmazonKeyspacesMetadata"
+            },
+            {
+              "Action": [
+                "ecr:BatchGetImage",
+                "ecr:DescribeImages",
+                "ecr:GetAuthorizationToken",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:ListTagsForResource",
+                "ecr:GetRegistryPolicy",
+                "ecr-public:DescribeImages",
+                "ecr-public:ListTagsForResource",
+                "ecr-public:GetAuthorizationToken"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "ec2:CopySnapshot",
+                "ec2:CreateSnapshot",
+                "kms:CreateKey",
+                "kms:DescribeKey",
+                "ec2:GetEbsEncryptionByDefault",
+                "ec2:DescribeSnapshots"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "ec2:CreateTags"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "ec2:CreateAction": [
+                    "CreateSnapshot",
+                    "CopySnapshot"
+                  ]
+                }
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:ec2:*::snapshot/*"
+              },
+              "Sid": "AllowWizToCreateTagsOnCreatedAndCopiedSnapshots"
+            },
+            {
+              "Action": "kms:CreateAlias",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:kms:*:*:alias/wizKey"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:kms:*:*:key/*"
+                }
+              ]
+            },
+            {
+              "Action": [
+                "kms:CreateGrant",
+                "kms:ReEncryptFrom"
+              ],
+              "Condition": {
+                "StringLike": {
+                  "kms:ViaService": {
+                    "Fn::Sub": "ec2.*.${AWS::URLSuffix}"
+                  }
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "kms:GetKeyPolicy",
+                "kms:PutKeyPolicy"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "aws:ResourceTag/wiz": "auto-gen-cmk"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "ec2:DeleteSnapshot"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "ec2:ResourceTag/wiz": "auto-gen-snapshot"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "ec2:ModifySnapshotAttribute"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "ec2:ResourceTag/wiz": [
+                    "auto-gen-snapshot",
+                    "shareable-resource"
+                  ]
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "ec2:CreateVolume"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "aws:RequestTag/wiz": "auto-gen-volume"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "AllowWizToCreateTaggedVolumes"
+            },
+            {
+              "Action": "ec2:CreateTags",
+              "Condition": {
+                "StringEquals": {
+                  "ec2:CreateAction": "CreateVolume"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "AllowWizToCreateTagsOnCreatedVolumes"
+            },
+            {
+              "Action": [
+                "ec2:DeleteVolume"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "ec2:ResourceTag/wiz": "auto-gen-volume"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "AllowWizToDeleteTaggedVolumes"
+            },
+            {
+              "Action": [
+                "ec2:DescribeVolumes",
+                "ec2:DescribeAvailabilityZones"
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "WizComplementaryPermissionsForTemporaryVolumes"
+            },
+            {
+              "Action": [
+                "s3:GetObject",
+                "s3:GetBucketLocation",
+                "s3:GetObjectTagging",
+                "s3:ListBucket"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:s3:::*terraform*"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:s3:::*tfstate*"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:s3:::*tf?state*"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:s3:::*cloudtrail*"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:s3:::elasticbeanstalk-*"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:s3:::amplify-*-deployment/*"
+                }
+              ],
+              "Sid": "WizAccessS3"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": {
+          "Fn::Sub": "WizFullPolicy${WizPolicyNameSuffix}"
+        },
+        "Roles": [
+          {
+            "Ref": "Role"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Policy"
+    },
+    "WizFullPolicy2": {
+      "Properties": {
+        "ManagedPolicyName": {
+          "Fn::Sub": "WizFullPolicy2${WizPolicyNameSuffix}"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "pipes:ListPipes",
+                "qbusiness:GetApplication",
+                "qldb:DescribeJournalKinesisStream",
+                "qldb:ListJournalKinesisStreamsForLedger",
+                "qldb:ListTagsForResource",
+                "redshift-serverless:GetScheduledAction",
+                "redshift-serverless:ListScheduledActions",
+                "resiliencehub:DescribeApp",
+                "resiliencehub:ListApps",
+                "resiliencehub:ListResiliencyPolicies",
+                "resiliencehub:ListTagsForResource",
+                "resource-groups:GetAccountSettings",
+                "resource-groups:GetGroupConfiguration",
+                "resource-groups:GetGroupQuery",
+                "resource-groups:GetTags",
+                "resource-groups:ListGroups",
+                "s3:GetIntelligentTieringConfiguration",
+                "s3express:GetBucketPolicy",
+                "s3express:ListAllMyDirectoryBuckets",
+                "scheduler:GetSchedule",
+                "scheduler:ListSchedules",
+                "scheduler:ListTagsForResource",
+                "serverlessrepo:GetApplication",
+                "servicecatalog:DescribePortfolio",
+                "servicecatalog:DescribeProductAsAdmin",
+                "servicecatalog:SearchProductsAsAdmin",
+                "servicediscovery:GetNamespace",
+                "servicediscovery:ListNamespaces",
+                "servicediscovery:ListTagsForResource",
+                "snowball:DescribeJob",
+                "ssm:GetDocument",
+                "ssm:GetParameters",
+                "sso-directory:Describe*",
+                "sso-directory:ListMembersInGroup",
+                "textract:GetAdapter",
+                "textract:ListAdapters",
+                "textract:ListTagsForResource",
+                "timestream:DescribeBatchLoadTask",
+                "timestream:DescribeEndpoints",
+                "timestream:DescribeScheduledQuery",
+                "timestream:ListBatchLoadTasks",
+                "timestream:ListDatabases",
+                "timestream:ListScheduledQueries",
+                "timestream:ListTables",
+                "timestream:ListTagsForResource",
+                "tnb:GetSolFunctionPackage",
+                "tnb:GetSolNetworkPackage",
+                "tnb:ListSolFunctionPackages",
+                "tnb:ListSolNetworkPackages",
+                "transcribe:GetMedicalTranscriptionJob",
+                "transcribe:GetTranscriptionJob",
+                "voiceid:ListDomains",
+                "wafv2:GetIPSet",
+                "wafv2:GetRuleGroup",
+                "wellarchitected:GetWorkload",
+                "wellarchitected:ListWorkloads",
+                "workmail:ListOrganizations",
+                "workmail:ListTagsForResource"
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "WizFullPolicy2"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Roles": [
+          {
+            "Ref": "Role"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::ManagedPolicy"
+    },
+    "WizLightsailScanningPolicy": {
+      "Condition": "LightsailScanningEnabled",
+      "Properties": {
+        "ManagedPolicyName": {
+          "Fn::Sub": "WizLightsailScanningPolicy${WizPolicyNameSuffix}"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "iam:CreateServiceLinkedRole",
+              "Condition": {
+                "StringLike": {
+                  "iam:AWSServiceName": "lightsail.amazonaws.com"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:iam::*:role/aws-service-role/lightsail.amazonaws.com/AWSServiceRoleForLightsail*"
+              }
+            },
+            {
+              "Action": [
+                "iam:PutRolePolicy"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:iam::*:role/aws-service-role/lightsail.amazonaws.com/AWSServiceRoleForLightsail*"
+              }
+            },
+            {
+              "Action": [
+                "lightsail:CreateDiskSnapshot",
+                "lightsail:TagResource"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "aws:RequestTag/wiz": "auto-gen-snapshot"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "lightsail:DeleteDiskSnapshot",
+                "lightsail:ExportSnapshot"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "aws:ResourceTag/wiz": "auto-gen-snapshot"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "lightsail:GetDiskSnapshot",
+                "lightsail:GetDiskSnapshots",
+                "lightsail:GetExportSnapshotRecords"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "ec2:ModifySnapshotAttribute",
+                "ec2:DeleteSnapshot"
+              ],
+              "Condition": {
+                "StringLike": {
+                  "ec2:ParentVolume": {
+                    "Fn::Sub": "arn:${AWS::Partition}:ec2:*:*:volume/vol-ffffffff"
+                  }
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Roles": [
+          {
+            "Ref": "Role"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::ManagedPolicy"
+    },
+    "WizRDSLogsPolicy": {
+      "Condition": "RDSLogsScanning",
+      "Properties": {
+        "ManagedPolicyName": {
+          "Fn::Sub": "WizRDSLogsPolicy${WizPolicyNameSuffix}"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "rds:DownloadCompleteDBLogFile",
+                "rds:DownloadDBLogFilePortion"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:rds:*:*:db:*"
+              },
+              "Sid": "WizRDSLogsAccess"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Roles": [
+          {
+            "Ref": "Role"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::ManagedPolicy"
+    },
+    "WizS3AWSLogsPolicy": {
+      "Condition": "S3AWSLogsScanning",
+      "Properties": {
+        "ManagedPolicyName": {
+          "Fn::Sub": "WizS3AWSLogsPolicy${WizPolicyNameSuffix}"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject",
+                "s3:GetObjectRetention",
+                "s3:GetObjectAttributes"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:s3:::*/AWSLogs/*"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:s3:::*/*/AWSLogs/*"
+                }
+              ],
+              "Sid": "WizS3AWSLogsGetObject"
+            },
+            {
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Condition": {
+                "StringLike": {
+                  "s3:prefix": [
+                    "AWSLogs/*",
+                    "*/AWSLogs/*"
+                  ]
+                }
+              },
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:s3:::*"
+                }
+              ],
+              "Sid": "WizS3AWSLogsListBucket"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Roles": [
+          {
+            "Ref": "Role"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::ManagedPolicy"
+    },
+    "WizS3KMSDecryptPolicy": {
+      "Condition": "S3KMSDecrypt",
+      "Properties": {
+        "ManagedPolicyName": {
+          "Fn::Sub": "WizS3KMSDecryptPolicy${WizPolicyNameSuffix}"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "kms:Decrypt"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "kms:ViaService": {
+                    "Fn::Sub": "s3.${AWS::URLSuffix}"
+                  }
+                }
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:kms:*:*:key/*"
+              },
+              "Sid": "WizS3KMSDecrypt"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Roles": [
+          {
+            "Ref": "Role"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::ManagedPolicy"
+    }
+  }
+}
