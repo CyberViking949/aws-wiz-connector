@@ -56,7 +56,7 @@ jobs:
         cp downloaded.json wiz-aws-standard-org.json
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-        branch_name="update-json"
+        branch_name="update-json-$(date +'%Y%m%d%H%M%S')"
         echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
         git checkout -b $branch_name
         git add .
