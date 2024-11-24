@@ -66,15 +66,14 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
-    # - name: Create a Pull Request
-    #   if: env.CHANGED == 'true'
-    #   uses: peter-evans/create-pull-request@v5
-    #   with:
-    #     token: ${{ secrets.GITHUB_TOKEN }}
-    #     branch: ${{ env.BRANCH_NAME }}
-    #     base: main
-    #     title: 'Update JSON file'
-    #     body: 'This PR updates the JSON file with the latest version.'
-    #     draft: false # Ensure the PR is created in normal (non-draft) mode
-    #     reviewers: cyberviking949 # Add required reviewers here
-    #     #team-reviewers: [] # Add required team reviewers here
+    - name: Create a Pull Request
+      if: env.CHANGED == 'true'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ env.BRANCH_NAME }}
+        title: 'Update JSON file'
+        body: 'This PR updates the JSON file with the latest version.'
+        draft: false # Ensure the PR is created in normal (non-draft) mode
+        reviewers: cyberviking949 # Add required reviewers here
+        #team-reviewers: [] # Add required team reviewers here
