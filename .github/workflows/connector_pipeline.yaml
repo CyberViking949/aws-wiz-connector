@@ -1,0 +1,67 @@
+name: Check for WIZ CFN Updates
+
+on:
+    schedule:
+      - cron: '0 0 * * *' # Runs daily at midnight
+    workflow_dispatch: # Allows manual trigger
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+  pull-requests: write # This is required to Write the PR Comment
+
+jobs:
+  terraform_deploy:
+    name: Check Wiz CFN templates for updates
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: /CFN_Template
+    steps:
+
+    - name: Checkout Repo
+      uses: actions/checkout@v3.3.0
+
+    - name: configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: 'us-east-1'
+        role-to-assume: ${{ secrets.AWS_ROLE }}
+        role-duration-seconds: 3600
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16' # or any LTS version you prefer
+
+    - name: Download the latest JSON file
+      run: curl -o downloaded.json https://wizio-public.s3.amazonaws.com/deployment-v2/aws/wiz-aws-standard-org.json
+
+    - name: Compare JSON files
+      id: compare
+      run: |
+        if ! cmp -s downloaded.json CFN_Template\wiz-aws-standard-org.json; then
+          echo "CHANGED=true" >> $GITHUB_ENV
+        else
+          echo "CHANGED=false" >> $GITHUB_ENV
+
+    - name: Update JSON file if there are changes
+      if: env.CHANGED == 'true'
+      run: |
+        cp downloaded.json path/to/your/existing.json
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout -b update-json-$(date +'%Y%m%d%H%M%S')
+        git add CFN_Template\wiz-aws-standard-org.json
+        git commit -m "Update JSON file"
+        git push origin HEAD
+
+    - name: Create a Pull Request
+      if: env.CHANGED == 'true'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        branch: update-json-$(date +'%Y%m%d%H%M%S')
+        title: 'Update JSON file'
+        body: 'This PR updates the JSON file with the latest version.'
