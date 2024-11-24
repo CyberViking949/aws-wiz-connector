@@ -57,6 +57,7 @@ jobs:
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
         branch_name="update-json"
+        echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
         git checkout -b $branch_name
         git add .
         git commit -m "Update JSON file"
@@ -69,7 +70,7 @@ jobs:
       uses: peter-evans/create-pull-request@v5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        branch: $branch_name
+        branch: ${{ env.BRANCH_NAME }}
         title: 'Update JSON file'
         body: 'This PR updates the JSON file with the latest version.'
         draft: false # Ensure the PR is created in normal (non-draft) mode
