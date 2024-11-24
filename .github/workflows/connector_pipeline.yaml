@@ -55,7 +55,7 @@ jobs:
       run: |
         echo "Overwriting the existing JSON file..."
         cp downloaded.json wiz-aws-standard-org.json
-        rm -rf doenloaded.json normalized_downloaded.json normalized_existing.json
+        rm -rf downloaded.json normalized_downloaded.json normalized_existing.json
 
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
