@@ -41,13 +41,13 @@ jobs:
     - name: Compare JSON files
       id: compare
       run: |
-        echo "Checking if the JSON files are different using diff..."
-        if diff downloaded.json wiz-aws-standard-org.json > /dev/null; then
-          echo "Files are the same."
-          echo "CHANGED=false" >> $GITHUB_ENV
-        else
-          echo "Files are different."
+        # Normalize and compare JSON files
+        if jq -S . downloaded.json > normalized_downloaded.json && \
+           jq -S . wiz-aws-standard-org.json > normalized_existing.json && \
+           ! diff -q normalized_downloaded.json normalized_existing.json > /dev/null; then
           echo "CHANGED=true" >> $GITHUB_ENV
+        else
+          echo "CHANGED=false" >> $GITHUB_ENV
         fi
 
     - name: Update JSON file and create a new branch
