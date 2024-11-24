@@ -53,20 +53,28 @@ jobs:
     - name: Update JSON file and create a new branch
       if: env.CHANGED == 'true'
       run: |
+        # Copy the new file to replace the old one
         cp downloaded.json wiz-aws-standard-org.json
+
+        # Configure Git
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-        git fetch origin main # Replace 'main' with your base branch if different
-        git checkout main
 
+        # Fetch the base branch (main) and create a new branch
+        git fetch origin main
+        git checkout main
         branch_name="update-json-$(date +'%Y%m%d%H%M%S')"
         echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
-
         git checkout -b $branch_name
-        git add .
-        git commit -m "Update JSON file"
-        git push origin $branch_name
 
+        # Check if the file has changes to commit
+        if git status --porcelain | grep wiz-aws-standard-org.json; then
+          git add wiz-aws-standard-org.json
+          git commit -m "Update JSON file"
+          git push origin $branch_name
+        else
+          echo "No changes to commit."
+        fi
   
     - name: Create a Pull Request
       if: env.CHANGED == 'true'
