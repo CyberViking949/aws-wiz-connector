@@ -55,7 +55,6 @@ jobs:
       run: |
         echo "Overwriting the existing JSON file..."
         cp downloaded.json wiz-aws-standard-org.json
-        rm -rf normalized_downloaded.json normalized_existing.json downloaded.json
 
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
@@ -75,6 +74,10 @@ jobs:
         else
           echo "No changes to commit."
         fi
+
+        echo "Verifying commit state before push..."
+        git log -1
+        git diff HEAD~1 HEAD
 
         echo "Pushing branch: $branch_name"
         git push origin $branch_name
