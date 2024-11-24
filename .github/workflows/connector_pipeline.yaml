@@ -54,6 +54,7 @@ jobs:
       if: env.CHANGED == 'true'
       run: |
         cp downloaded.json wiz-aws-standard-org.json
+        rm -rf downloaded.json
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
         branch_name="update-json-$(date +'%Y%m%d%H%M%S')"
