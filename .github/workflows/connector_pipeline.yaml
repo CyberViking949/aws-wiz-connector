@@ -54,7 +54,7 @@ jobs:
       if: env.CHANGED == 'true'
       run: |
         echo "Overwriting the existing JSON file..."
-        cp downloaded.json CFN_Template/wiz-aws-standard-org.json
+        cp downloaded.json wiz-aws-standard-org.json
 
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
