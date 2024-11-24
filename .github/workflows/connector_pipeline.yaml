@@ -56,10 +56,11 @@ jobs:
         cp downloaded.json wiz-aws-standard-org.json
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-        git checkout -b update-json
+        branch_name="update-json"
+        git checkout -b $branch_name
         git add .
         git commit -m "Update JSON file"
-        git push origin update-json
+        git push origin $branch_name
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
@@ -68,7 +69,7 @@ jobs:
       uses: peter-evans/create-pull-request@v5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        branch: update-json
+        branch: $branch_name
         title: 'Update JSON file'
         body: 'This PR updates the JSON file with the latest version.'
         draft: false # Ensure the PR is created in normal (non-draft) mode
