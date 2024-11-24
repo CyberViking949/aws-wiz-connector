@@ -41,10 +41,14 @@ jobs:
     - name: Compare JSON files
       id: compare
       run: |
-        if ! cmp -s downloaded.json CFN_Template/wiz-aws-standard-org.json; then
-          echo "CHANGED=true" >> $GITHUB_ENV
-        else
+        echo "Checking if the JSON files are different using diff..."
+        if diff downloaded.json CFN_Template/wiz-aws-standard-org.json > /dev/null; then
+          echo "Files are the same."
           echo "CHANGED=false" >> $GITHUB_ENV
+        else
+          echo "Files are different."
+          echo "CHANGED=true" >> $GITHUB_ENV
+        fi
 
     - name: Update JSON file if there are changes
       if: env.CHANGED == 'true'
