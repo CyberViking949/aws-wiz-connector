@@ -41,7 +41,7 @@ jobs:
     - name: Compare JSON files
       id: compare
       run: |
-        if ! cmp -s downloaded.json CFN_Template\wiz-aws-standard-org.json; then
+        if ! cmp -s downloaded.json CFN_Template/wiz-aws-standard-org.json; then
           echo "CHANGED=true" >> $GITHUB_ENV
         else
           echo "CHANGED=false" >> $GITHUB_ENV
