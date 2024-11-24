@@ -50,23 +50,25 @@ jobs:
           echo "CHANGED=true" >> $GITHUB_ENV
         fi
 
-    - name: Update JSON file if there are changes
+    - name: Update JSON file and create a new branch
       if: env.CHANGED == 'true'
       run: |
         cp downloaded.json wiz-aws-standard-org.json
-        rm -rf downloaded.json
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git checkout -b update-json
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+        branch_name="update-json-$(date +'%Y%m%d%H%M%S')"
+        git checkout -b $branch_name
         git add .
         git commit -m "Update JSON file"
-        git push origin HEAD
-
+        git push origin $branch_name
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
     - name: Create a Pull Request
       if: env.CHANGED == 'true'
       uses: peter-evans/create-pull-request@v5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        branch: update-json
+        branch: $branch_name
         title: 'Update JSON file'
         body: 'This PR updates the JSON file with the latest version.'
