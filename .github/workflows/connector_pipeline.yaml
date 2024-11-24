@@ -63,7 +63,7 @@ jobs:
         echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
 
         git checkout -b $branch_name
-        git add CFN_Template/wiz-aws-standard-org.json
+        git add .
         git commit -m "Update JSON file"
         git push origin $branch_name
 
