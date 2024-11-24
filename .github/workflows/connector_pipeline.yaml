@@ -60,11 +60,6 @@ jobs:
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-        echo "Checking out a new branch..."
-        branch_name="update-json-$(date +'%Y%m%d%H%M%S')"
-        echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
-        git checkout -b $branch_name
-
         echo "Checking for changes..."
         git status
 
@@ -76,30 +71,11 @@ jobs:
           echo "No changes to commit."
         fi
 
-        echo "Verifying commit state before push..."
-        git log -1
-        git diff HEAD~1 HEAD
-
-        echo "Pushing branch: $branch_name"
-        git push origin $branch_name
-
-    - name: Verify Branch State
-      run: |
-        echo "Verifying branch: ${{ env.BRANCH_NAME }}"
-        git checkout ${{ env.BRANCH_NAME }}
-        git log -1
-        echo "Contents of the updated JSON file:"
-        cat wiz-aws-standard-org.json
-
     - name: Create a Pull Request
       if: env.CHANGED == 'true'
       uses: peter-evans/create-pull-request@v5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ env.BRANCH_NAME }}  # Use the branch created in the previous steps
-        base: main                     # Base branch for the PR
         title: 'Update JSON file'
         body: 'This PR updates the JSON file with the latest version.'
-        set-rebase-strategy: none      # Prevents the action from rebasing the branch
-        delete-branch: false           # Do not delete the branch after creating the PR
-        branch-suffix: ''              # Avoid branch name modifications
+        delete-branch: false           # Do not delete the branch after creating the P
