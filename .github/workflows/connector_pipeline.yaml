@@ -56,34 +56,44 @@ jobs:
         echo "Overwriting the existing JSON file..."
         cp downloaded.json wiz-aws-standard-org.json
         rm -rf normalized_downloaded.json normalized_existing.json downloaded.json
-  
+
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-  
+
         echo "Checking out a new branch..."
         branch_name="update-json-$(date +'%Y%m%d%H%M%S')"
         echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
         git checkout -b $branch_name
-  
+
         echo "Checking for changes..."
         git status
-  
+
         if git status --porcelain | grep wiz-aws-standard-org.json; then
           echo "Changes detected. Staging and committing changes."
           git add wiz-aws-standard-org.json
           git commit -m "Update JSON file"
-          git push origin $branch_name
         else
           echo "No changes to commit."
         fi
-  
+
+        echo "Pushing branch: $branch_name"
+        git push origin $branch_name
+
+    - name: Verify Branch State
+      run: |
+        echo "Verifying branch: ${{ env.BRANCH_NAME }}"
+        git checkout ${{ env.BRANCH_NAME }}
+        git log -1
+        echo "Contents of the updated JSON file:"
+        cat wiz-aws-standard-org.json
+
     - name: Create a Pull Request
       if: env.CHANGED == 'true'
       uses: peter-evans/create-pull-request@v5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ env.BRANCH_NAME }}
+        branch: ${{ env.BRANCH_NAME }} # Source branch for the PR
+        base: main                    # Target base branch
         title: 'Update JSON file'
-        body: 'This PR updates the JSON file with the latest version.'  
-        reviewers: cyberviking949 # Add required reviewers here
-        #team-reviewers: [] # Add required team reviewers here
+        body: 'This PR updates the JSON file with the latest version.'
+        commit: false                 # Prevents the action from altering your commits
