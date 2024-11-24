@@ -63,7 +63,7 @@ jobs:
 
         # Check if the file has changes to commit
         if git status --porcelain | grep wiz-aws-standard-org.json; then
-          git add CFN_Template/wiz-aws-standard-org.json
+          git add wiz-aws-standard-org.json
           git commit -m "Update JSON file"
           branch_name="update-json-$(date +'%Y%m%d%H%M%S')"
           echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
