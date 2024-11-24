@@ -96,8 +96,10 @@ jobs:
       uses: peter-evans/create-pull-request@v5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ env.BRANCH_NAME }} # The branch containing the changes
-        base: main                    # Target branch for the PR
+        branch: ${{ env.BRANCH_NAME }}  # Use the branch created in the previous steps
+        base: main                     # Base branch for the PR
         title: 'Update JSON file'
         body: 'This PR updates the JSON file with the latest version.'
-        delete-branch: false          # Do not delete the branch after PR creation
+        set-rebase-strategy: none      # Prevents the action from rebasing the branch
+        delete-branch: false           # Do not delete the branch after creating the PR
+        branch-suffix: ''              # Avoid branch name modifications
