@@ -60,10 +60,6 @@ jobs:
         # Configure Git
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-
-        # Fetch the base branch (main) and create a new branch
-        git fetch origin main
-        git checkout main
         branch_name="update-json-$(date +'%Y%m%d%H%M%S')"
         echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
         git checkout -b $branch_name
