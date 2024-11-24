@@ -55,6 +55,7 @@ jobs:
       run: |
         # Copy the new file to replace the old one
         cp downloaded.json wiz-aws-standard-org.json
+        rm -rf normalized_downloaded.json normalized_existing.json downloaded.json
 
         # Configure Git
         git config --global user.name "GitHub Actions"
@@ -69,7 +70,7 @@ jobs:
 
         # Check if the file has changes to commit
         if git status --porcelain | grep wiz-aws-standard-org.json; then
-          git add wiz-aws-standard-org.json
+          git add .
           git commit -m "Update JSON file"
           git push origin $branch_name
         else
