@@ -7,7 +7,7 @@ on:
 
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
+  contents: write  # This is required for actions/checkout
   pull-requests: write # This is required to Write the PR Comment
 
 jobs:
@@ -60,6 +60,7 @@ jobs:
         git checkout -b update-json-$(date +'%Y%m%d%H%M%S')
         git add .
         git commit -m "Update JSON file"
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
         git push origin HEAD
 
     - name: Create a Pull Request
