@@ -60,14 +60,14 @@ jobs:
         # Configure Git
         git config --global user.name "GitHub Actions"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-        branch_name="update-json-$(date +'%Y%m%d%H%M%S')"
-        echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
-        git checkout -b $branch_name
 
         # Check if the file has changes to commit
         if git status --porcelain | grep wiz-aws-standard-org.json; then
-          git add .
+          git add CFN_Template/wiz-aws-standard-org.json
           git commit -m "Update JSON file"
+          branch_name="update-json-$(date +'%Y%m%d%H%M%S')"
+          echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
+          git checkout -b $branch_name
           git push origin $branch_name
         else
           echo "No changes to commit."
