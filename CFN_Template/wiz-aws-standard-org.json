@@ -408,6 +408,17 @@
           "Statement": [
             {
               "Action": [
+                "redshift:DeleteClusterSnapshot",
+                "redshift:AuthorizeSnapshotAccess",
+                "redshift:RevokeSnapshotAccess"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:redshift:*:*:snapshot:*wiz-autogen-*"
+              }
+            },
+            {
+              "Action": [
                 "redshift:CopyClusterSnapshot"
               ],
               "Effect": "Allow",
@@ -415,9 +426,30 @@
             },
             {
               "Action": [
+                "redshift:CreateTags"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:redshift:*:*:snapshot:*/*"
+              }
+            },
+            {
+              "Action": [
                 "redshift:DescribeClusterSnapshots",
                 "redshift:DescribeClusters"
               ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "redshift:CreateClusterSnapshot"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "aws:RequestTag/wiz": "auto-gen-snapshot"
+                }
+              },
               "Effect": "Allow",
               "Resource": "*"
             },
