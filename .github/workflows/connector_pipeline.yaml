@@ -91,7 +91,7 @@ jobs:
       id: create_change_set # Assign an ID to reference outputs in later steps
       run: |
         CHANGE_SET=$(aws cloudformation create-change-set \
-          --stack-name arn:aws:cloudformation:us-west-2:808696518247:stack/Wiz-io-SaaS-Connector/0dd68a00-ab72-11ef-a2c2-06c9bfb46c8f \
+          --stack-name Wiz-io-SaaS-Connector \
           --change-set-name UpdateIntegration \
           --no-use-previous-template \
           --template-url https://wizio-public.s3.amazonaws.com/deployment-v2/aws/wiz-aws-standard-org.json \
