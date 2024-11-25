@@ -88,20 +88,13 @@ jobs:
         role-to-assume: ${{ secrets.AWS_ROLE }}
         role-duration-seconds: 3600
 
-    - name: validate credentials
-      if : github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: 'aws sts get-caller-identity'
-
-    - name: Look for CFN stack
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: aws cloudformation describe-stacks --stack-name Wiz-io-SaaS-Connector
-
     - name: Create CloudFormation Change Set
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       id: create_change_set # Assign an ID to reference outputs in later steps
       run: |
         CHANGE_SET=$(aws cloudformation create-change-set \
           --stack-name Wiz-io-SaaS-Connector \
+          --region us-west-2 \
           --change-set-name UpdateIntegration \
           --no-use-previous-template \
           --template-url https://wizio-public.s3.amazonaws.com/deployment-v2/aws/wiz-aws-standard-org.json \
