@@ -115,6 +115,6 @@ jobs:
     - name: Execute CloudFormation Change Set
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
-        sleep 5
+        sleep 10
         CHANGE_SET_ARN=$(cat change_set_arn.txt)
         aws cloudformation execute-change-set --change-set-name "$CHANGE_SET_ARN" --region us-west-2
