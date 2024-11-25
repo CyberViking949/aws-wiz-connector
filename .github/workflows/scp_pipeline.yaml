@@ -1,0 +1,47 @@
+name: Deploy AWS Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - SCP/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - SCP/**
+
+jobs:
+  terraform_deploy:
+    name: Update the Wiz SCP
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: SCP
+    steps:
+
+    - name: Checkout Repo
+      uses: actions/checkout@v3.3.0
+
+    - name: Validate JSON
+      if : github.event_name == 'pull_request'
+      uses: docker://orrosenblatt/validate-json-action:latest
+      env:
+        INPUT_JSONS: restrict_wiz.json
+
+    - name: Configure AWS credentials
+      if : github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ inputs.region }}
+        role-to-assume: ${{ secrets.AWS_ROLE }}
+        role-duration-seconds: 3600
+
+    - name: Update SCP in place
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        'aws organizations update-policy \
+        --policy-id p-xxxxxxxxx \
+        -content file://restrict_wiz.json
