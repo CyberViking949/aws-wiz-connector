@@ -82,7 +82,7 @@ jobs:
       if : github.ref == 'refs/heads/main' && github.event_name == 'push'
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-region: ${{ inputs.region }}
+        aws-region: 'us-west-1'
         role-to-assume: ${{ secrets.AWS_ROLE }}
         role-duration-seconds: 3600
 
