@@ -88,6 +88,25 @@ jobs:
         role-to-assume: ${{ secrets.AWS_ROLE }}
         role-duration-seconds: 3600
 
+    - name: Update Wiz Stackset
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        aws cloudformation update-stack-set \
+          --stack-set-name Wiz-io-SaaS-Connector \
+          --region us-west-2 \
+          --no-use-previous-template \
+          --template-url https://wizio-public.s3.amazonaws.com/deployment-v2/aws/wiz-aws-standard.json \
+          --capabilities CAPABILITY_NAMED_IAM CAPABILITY_IAM \
+          --parameters ParameterKey=ExternalId,UsePreviousValue=true \
+                       ParameterKey=RoleARN,UsePreviousValue=true \
+                       ParameterKey=WizRoleName,UsePreviousValue=true \
+                       ParameterKey=DataScanning,UsePreviousValue=true \
+                       ParameterKey=EKSScanning,UsePreviousValue=true \
+                       ParameterKey=LightsailScanning,UsePreviousValue=true \
+                       ParameterKey=S3AWSLogsScanning,UsePreviousValue=true \
+                       ParameterKey=RDSLogsScanning,UsePreviousValue=true \
+                       ParameterKey=S3KMSDecrypt,UsePreviousValue=true \
+
     - name: Create CloudFormation Change Set
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       id: create_change_set # Assign an ID to reference outputs in later steps
