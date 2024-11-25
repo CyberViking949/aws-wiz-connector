@@ -48,17 +48,9 @@
         },
         "Enabled"
       ]
-    },
-    "orgEnabled": {
-      "Fn::Equals": [
-        {
-          "Ref": "isOrg"
-        },
-        "Enabled"
-      ]
     }
   },
-  "Description": "Wiz AWS standard org deployment",
+  "Description": "Wiz AWS standard deployment",
   "Metadata": {
     "AWS::CloudFormation::Interface": {
       "ParameterGroups": [
@@ -78,15 +70,6 @@
         },
         {
           "Label": {
-            "default": "Wiz Org Deployment"
-          },
-          "Parameters": [
-            "orgId",
-            "isOrg"
-          ]
-        },
-        {
-          "Label": {
             "default": "Wiz Defend"
           },
           "Parameters": [
@@ -101,7 +84,7 @@
           "default": "Enable Data Scanning"
         },
         "EKSScanning": {
-          "default": "Enable EKS Scanning"
+          "default": "Enable EKS scanning"
         },
         "ExternalId": {
           "default": "Connector External ID"
@@ -123,12 +106,6 @@
         },
         "WizRoleName": {
           "default": "Wiz Role Name"
-        },
-        "isOrg": {
-          "default": "Enable Wiz Org Deployment"
-        },
-        "orgId": {
-          "default": "Organizational Unit Id"
         }
       }
     },
@@ -199,7 +176,7 @@
     },
     "RoleARN": {
       "AllowedPattern": "arn:aws(-us-gov|-cn)?:iam::[0-9]+:role/.*",
-      "Description": "Enter the AWS Trust Policy Role ARN for your Wiz data center. You can retrieve it under User Settings, Tenant in the Wiz portal.",
+      "Description": "Enter the AWS Trust Policy Role ARN for your Wiz data center. You can retrieve it from User Settings, Tenant in the Wiz portal.",
       "Type": "String"
     },
     "S3AWSLogsScanning": {
@@ -228,20 +205,6 @@
     "WizRoleName": {
       "Default": "WizAccess-Role",
       "Description": "Enter the IAM role name that will be created in your AWS account, the default is WizAccess-Role",
-      "Type": "String"
-    },
-    "isOrg": {
-      "AllowedValues": [
-        "Enabled",
-        "Disabled"
-      ],
-      "Default": "Disabled",
-      "Description": "Enable org deploy",
-      "Type": "String"
-    },
-    "orgId": {
-      "Default": "",
-      "Description": "The OU ID of the AWS Organization where we should deploy, preferably the root OU. This value is mandatory when isOrg is Enabled. You can submit one value, or a space separated list of multiple OUs",
       "Type": "String"
     }
   },
@@ -289,115 +252,6 @@
       },
       "Type": "AWS::IAM::Role"
     },
-    "WizAccessRoleStackSet": {
-      "Condition": "orgEnabled",
-      "Properties": {
-        "AutoDeployment": {
-          "Enabled": true,
-          "RetainStacksOnAccountRemoval": false
-        },
-        "Capabilities": [
-          "CAPABILITY_IAM",
-          "CAPABILITY_NAMED_IAM"
-        ],
-        "Description": "Wiz AWS standard org deployment",
-        "ManagedExecution": {
-          "Active": true
-        },
-        "OperationPreferences": {
-          "FailureTolerancePercentage": 50,
-          "MaxConcurrentPercentage": 50,
-          "RegionConcurrencyType": "PARALLEL"
-        },
-        "Parameters": [
-          {
-            "ParameterKey": "ExternalId",
-            "ParameterValue": {
-              "Ref": "ExternalId"
-            }
-          },
-          {
-            "ParameterKey": "RoleARN",
-            "ParameterValue": {
-              "Ref": "RoleARN"
-            }
-          },
-          {
-            "ParameterKey": "WizRoleName",
-            "ParameterValue": {
-              "Ref": "WizRoleName"
-            }
-          },
-          {
-            "ParameterKey": "DataScanning",
-            "ParameterValue": {
-              "Ref": "DataScanning"
-            }
-          },
-          {
-            "ParameterKey": "EKSScanning",
-            "ParameterValue": {
-              "Ref": "EKSScanning"
-            }
-          },
-          {
-            "ParameterKey": "LightsailScanning",
-            "ParameterValue": {
-              "Ref": "LightsailScanning"
-            }
-          },
-          {
-            "ParameterKey": "S3AWSLogsScanning",
-            "ParameterValue": {
-              "Ref": "S3AWSLogsScanning"
-            }
-          },
-          {
-            "ParameterKey": "RDSLogsScanning",
-            "ParameterValue": {
-              "Ref": "RDSLogsScanning"
-            }
-          },
-          {
-            "ParameterKey": "S3KMSDecrypt",
-            "ParameterValue": {
-              "Ref": "S3KMSDecrypt"
-            }
-          },
-          {
-            "ParameterKey": "WizPolicyNameSuffix",
-            "ParameterValue": {
-              "Ref": "WizPolicyNameSuffix"
-            }
-          }
-        ],
-        "PermissionModel": "SERVICE_MANAGED",
-        "StackInstancesGroup": [
-          {
-            "DeploymentTargets": {
-              "OrganizationalUnitIds": {
-                "Fn::Split": [
-                  " ",
-                  {
-                    "Ref": "orgId"
-                  }
-                ]
-              }
-            },
-            "Regions": [
-              {
-                "Ref": "AWS::Region"
-              }
-            ]
-          }
-        ],
-        "StackSetName": {
-          "Ref": "AWS::StackName"
-        },
-        "TemplateURL": "https://wizio-public.s3.amazonaws.com/deployment-v2/aws/wiz-aws-standard.json"
-      },
-      "Type": "AWS::CloudFormation::StackSet"
-    },
     "WizDataScanningPolicy": {
       "Condition": "DataScanningEnabled",
       "Properties": {
@@ -438,9 +292,6 @@
                 "redshift:DescribeClusterSnapshots",
                 "redshift:DescribeClusters"
               ],
-              "Effect": "Allow",
-              "Resource": "*"
-            },
               "Effect": "Allow",
               "Resource": "*"
             },
