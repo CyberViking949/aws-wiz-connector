@@ -426,6 +426,15 @@
             },
             {
               "Action": [
+                "redshift:CreateTags"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:redshift:*:*:snapshot:*/*"
+              }
+            },
+            {
+              "Action": [
                 "redshift:DescribeClusterSnapshots",
                 "redshift:DescribeClusters"
               ],
