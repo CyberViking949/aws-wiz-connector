@@ -13,7 +13,7 @@ on:
       - SCP/**
 
 jobs:
-  terraform_deploy:
+  wix_scp_workflow:
     name: Update the Wiz SCP
     runs-on: ubuntu-latest
     defaults:

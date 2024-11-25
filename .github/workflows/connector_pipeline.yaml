@@ -11,7 +11,7 @@ permissions:
   pull-requests: write # This is required to Write the PR Comment
 
 jobs:
-  terraform_deploy:
+  wiz_integration_mgmt:
     name: Check Wiz CFN templates for updates
     runs-on: ubuntu-latest
     defaults:
