@@ -469,6 +469,16 @@
             },
             {
               "Action": [
+                "rds:DeleteDBClusterSnapshot",
+                "rds:ModifyDBClusterSnapshotAttribute"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:rds:*:*:cluster-snapshot:wiz-autogen-*"
+              }
+            },
+            {
+              "Action": [
                 "rds:CopyDBClusterSnapshot",
                 "rds:CopyDBSnapshot"
               ],
