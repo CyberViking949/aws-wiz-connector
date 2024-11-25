@@ -408,17 +408,6 @@
           "Statement": [
             {
               "Action": [
-                "redshift:DeleteClusterSnapshot",
-                "redshift:AuthorizeSnapshotAccess",
-                "redshift:RevokeSnapshotAccess"
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Sub": "arn:${AWS::Partition}:redshift:*:*:snapshot:*wiz-autogen-*"
-              }
-            },
-            {
-              "Action": [
                 "redshift:CopyClusterSnapshot"
               ],
               "Effect": "Allow",
