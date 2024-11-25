@@ -69,8 +69,9 @@ jobs:
       uses: peter-evans/create-pull-request@v5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        title: 'Update JSON file'
-        body: 'This PR updates the JSON file with the latest version.'
+        title: 'Update Wiz CFN Template file'
+        body: 'This PR updates the CFN template file with the latest version for the Wiz integration.'
+        reviewers: 'cyberviking949'
 
     - name: Configure AWS credentials
       if : github.ref == 'refs/heads/main' && github.event_name == 'push'
