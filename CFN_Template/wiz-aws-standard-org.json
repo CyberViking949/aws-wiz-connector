@@ -497,6 +497,19 @@
             },
             {
               "Action": [
+                "rds:CreateDBClusterSnapshot",
+                "rds:CreateDBSnapshot"
+              ],
+              "Condition": {
+                "StringEquals": {
+                  "rds:req-tag/wiz": "auto-gen-snapshot"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
                 "s3:GetObject",
                 "s3:ListBucket"
               ],
