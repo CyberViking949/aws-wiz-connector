@@ -34,9 +34,11 @@ jobs:
         node-version: '16' # or any LTS version you prefer
 
     - name: Download the latest CFN template
+      if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
       run: curl -o downloaded.json https://wizio-public.s3.amazonaws.com/deployment-v2/aws/wiz-aws-standard-org.json
 
     - name: Compare new CFN template against deployed one
+      if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
       id: compare
       run: |
         # Normalize and compare JSON files
@@ -85,6 +87,10 @@ jobs:
         aws-region: 'us-west-1'
         role-to-assume: ${{ secrets.AWS_ROLE }}
         role-duration-seconds: 3600
+
+    - name: Look for CFN stack
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: aws cloudformation describe-stacks --stack-name Wiz-io-SaaS-Connector
 
     - name: Create CloudFormation Change Set
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
