@@ -1,9 +1,14 @@
 name: Check for WIZ CFN Updates
 
 on:
-    schedule:
-      - cron: '0 0 * * 0' # Runs Weekly on Sunday at midnight
-    workflow_dispatch: # Allows manual trigger
+  push:
+    branches:
+      - main
+    paths:
+      - your_TF_Dir/**
+  schedule:
+    - cron: '0 0 * * 0' # Runs Weekly on Sunday at midnight
+  workflow_dispatch: # Allows manual trigger
 
 permissions:
   id-token: write # This is required for requesting the JWT
