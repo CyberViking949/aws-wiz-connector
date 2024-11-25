@@ -88,6 +88,10 @@ jobs:
         role-to-assume: ${{ secrets.AWS_ROLE }}
         role-duration-seconds: 3600
 
+    - name: validate credentials
+      if : github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: 'aws sts get-caller-identity'
+
     - name: Look for CFN stack
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: aws cloudformation describe-stacks --stack-name Wiz-io-SaaS-Connector
