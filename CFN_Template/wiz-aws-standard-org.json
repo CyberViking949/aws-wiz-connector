@@ -902,6 +902,18 @@
               "Sid": "AllowWizToCreateTagsOnCreatedAndCopiedSnapshots"
             },
             {
+              "Action": "kms:CreateAlias",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:kms:*:*:alias/wizKey"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:kms:*:*:key/*"
+                }
+              ]
+            },
+            {
               "Action": [
                 "kms:CreateGrant",
                 "kms:ReEncryptFrom"
