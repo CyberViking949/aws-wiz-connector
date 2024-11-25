@@ -419,13 +419,6 @@
             },
             {
               "Action": [
-                "redshift:CopyClusterSnapshot"
-              ],
-              "Effect": "Allow",
-              "Resource": "*"
-            },
-            {
-              "Action": [
                 "redshift:CreateTags"
               ],
               "Effect": "Allow",
