@@ -81,12 +81,11 @@ jobs:
         role-to-assume: ${{ secrets.AWS_ROLE }}
         role-duration-seconds: 3600
 
-    - name: Update CloudFormation stack set
+    - name: Update CloudFormation stack
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
-        'aws cloudformation update-stack-set \
-        --stack-set-name Wiz-AWS-Org-Integration \
+        'aws cloudformation update-stack \
+        --stack-set-name Wiz-io-SaaS-Connector \
         --no-use-previous-template \
         --template-url https://wizio-public.s3.amazonaws.com/deployment-v2/aws/wiz-aws-standard-org.json \
-        --capabilities CAPABILITY_NAMED_IAM \
-        --operation-preferences RegionOrder=us-east-1,FailureTolerancePercentage=100,MaxConcurrentPercentage=100'
+        --capabilities CAPABILITY_NAMED_IAM
