@@ -23,7 +23,7 @@ Before using this pipeline, ensure the following prerequisites are in place:
    - `aws iam create-open-id-connect-provider --url "https://token.actions.githubusercontent.com" --thumbprint-list "6938fd4d98bab03faadb97b34396831e3780aea1" --client-id-list 'sts.amazonaws.com'` 
    - `aws iam create-role --role-name github-wiz-pipeline-role --assume-role-policy-document file://trust-policy.json` (file in repo)
    - `aws iam attach-role-policy --role-name github-wiz-pipeline-role --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess`
-   - 'aws iam attach-role-policy --role-name github-wiz-pipeline-role --policy-arn arn:aws:iam::aws:policy/IAMFullAccess'
+   - `aws iam attach-role-policy --role-name github-wiz-pipeline-role --policy-arn arn:aws:iam::aws:policy/IAMFullAccess`
 
 ## How It Works
 ### Workflow Triggers
