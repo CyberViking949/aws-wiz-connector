@@ -12,7 +12,7 @@
                     "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                    "token.actions.githubusercontent.com:sub": "repo:CyberViking949/aws-wiz-integration"
+                    "token.actions.githubusercontent.com:sub": "repo:<github_org/repo>"
                 }
             }
         }
