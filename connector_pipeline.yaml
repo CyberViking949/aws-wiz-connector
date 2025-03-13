@@ -18,7 +18,7 @@ permissions:
 jobs:
   wiz_integration_mgmt:
     name: Check Wiz CFN templates for updates
-    runs-on: [fw-shared-ayanr]
+    runs-on: ubuntu-latest
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     defaults:
       run:
@@ -32,9 +32,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - name: Install Python dependencies
-        run: |
-          pip3 install awscli --upgrade
+          
       - name: Download the latest CFN template
         run: curl -o downloaded.json https://wizio-public.s3.amazonaws.com/deployment-v2/aws/wiz-aws-standard-org.json
 
@@ -68,14 +66,11 @@ jobs:
           body: 'This PR updates the CFN template file with the latest version for the Wiz integration.'
           reviewers: 
 
-  deploy_device42:
+  deploy:
     name: Deploy
-    runs-on: [fw-shared-ayanr]
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - name: Install Python dependencies
-        run: |
-          pip3 install awscli --upgrade
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
